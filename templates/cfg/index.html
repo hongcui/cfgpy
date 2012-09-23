@@ -1,0 +1,10 @@
+<h1>Please select a dataset to work with:</h1>
+{% if dataset_list %}
+	<ul>
+	{% for dataset in dataset_list %}
+		<li><a href="/cfg/{{ dataset.dataset_id }}/">{{ dataset.name }}</a></li>
+	{% endfor %}
+	</ul>
+{% else %}
+	<p>No datasets are currently available. Please try again later.</p>
+{% endif %}

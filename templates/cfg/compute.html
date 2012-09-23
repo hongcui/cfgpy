@@ -1,0 +1,25 @@
+<h1>Species under consideration:</h1>
+<ul>
+{% for s in form.species %}
+	<li>{{ s }}</li>
+{% endfor %}
+</ul>
+
+{% if form.species|length > 1 and form.characters|length > 0%}
+	<form action="" method="post">{% csrf_token %}
+	{{form.as_p}}
+	<input type="submit" value="Submit"/>
+	</form>
+{% else %}
+	<h2> You've either found a single species, or there is no character left to distinguish the remaining species.</h2>
+	<a href="/cfg">Home</a></li>
+{% endif %}
+
+{% if form.debug %}
+	<h1>The redundant characters were:</h1>
+	<ul>
+	{% for r in form.redundant %}
+		<li>{{ r }}</li>
+	{% endfor %}
+	</ul>
+{% endif %}
