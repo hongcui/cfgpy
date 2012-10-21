@@ -20,7 +20,6 @@ class ComputeForm(forms.Form):
     
 class SplitForm(forms.Form):
     split_char = ''
-    true_species = []
-    false_species = []
-    select_true_false = forms.CharField(required=False)
+    char_species = {}
+    select_state = forms.CharField(required=False)
     

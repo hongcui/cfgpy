@@ -8,6 +8,7 @@ from cfgpy.cfg import entropy
 DEBUG_MODE = False  # turn this on to see information gain values in character lists, and redundant characters
 
 def species(request, dataset_id):
+    request.session.flush()
     if request.method == 'POST': #if the form has been submitted
         form = SpeciesSelect(request.POST)
         if form.is_valid():
@@ -37,9 +38,8 @@ def compute(request, dataset_id):
             selected_char = request.POST.getlist('characters')[0]
             request.session['split_char'] = selected_char
             e = request.session['entropy']  # get the current Entropy object
-            true, false = e.split_on_character(selected_char)
-            request.session['true_matrix'] = true
-            request.session['false_matrix'] = false
+            submatrices = e.split_on_character(selected_char)
+            request.session['submatrices'] = submatrices
             return HttpResponseRedirect('split/')
         else:
             print 'Not valid in compute form.'
@@ -64,11 +64,9 @@ def split_species(request, dataset_id):
     if request.method == 'POST':
             form = SplitForm(request.POST)
             if form.is_valid():
-                select_true_false = request.POST.getlist('select_true_false')
-                if select_true_false[0].lower() == 'true':
-                    matrix = request.session['true_matrix']
-                else:
-                    matrix = request.session['false_matrix']
+                select_state = request.POST.getlist('select_state')
+                name = select_state[0]
+                matrix = request.session['submatrices'][name]
                 # reset entropy using the true/false matrix (i.e. split the decision tree)
                 ent = entropy.Entropy(matrix)
                 request.session['entropy'] = ent
@@ -78,13 +76,13 @@ def split_species(request, dataset_id):
                 print 'Not valid in compute form.'
     else:
         form = SplitForm()
-        true = request.session['true_matrix']
-        false = request.session['false_matrix']
-        form.true_species = sorted(true.keys())
-        form.false_species = sorted(false.keys())
+        form.char_species = {}  #have to reset this for some reason I don't quite understand, otherwise the form will carry over states from last iteration.
+        submatrices = request.session['submatrices']
+        for name, mat in submatrices.iteritems():
+            form.char_species[name] = sorted(mat.keys())
         form.split_char = request.session['split_char']
-        choices = (('true', 'true'), ('false', 'false'))
-        form.fields['select_true_false'] = forms.ChoiceField(widget=forms.RadioSelect,
+        choices = ((name, name) for name in submatrices.keys())
+        form.fields['select_state'] = forms.ChoiceField(widget=forms.RadioSelect,
                                                        required=True,
                                                        choices=choices)
         

@@ -1,14 +1,10 @@
 <form action="" method="post">{% csrf_token %}
-<h1>The characters with value TRUE for {{form.split_char}} are:</h1>
 <ul>
-{% for sp in form.true_species %}
-	<li>{{ sp }}</li>
-{% endfor %}
-</ul>
-<h1>The characters with value FALSE for {{form.split_char}} are:</h1>
-<ul>
-{% for sp in form.false_species %}
-	<li>{{ sp }}</li>
+{% for state, sp_list in form.char_species.items %}
+	<h1>The characters with value {{ state }} for {{form.split_char}} are:</h1>
+	{% for sp in sp_list %}
+		<li>{{ sp }}</li>
+	{% endfor %}
 {% endfor %}
 </ul>
 {{form.as_p}}

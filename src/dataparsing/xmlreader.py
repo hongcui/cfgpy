@@ -5,13 +5,12 @@ Created on Aug 13, 2012
 '''
 import xml.etree.cElementTree as et
 import cPickle as pkl
+import csv
 
 class XmlMatrix(object):
     '''
     classdocs
     '''
-
-
     def __init__(self, filename):
         '''
         Constructor
@@ -47,10 +46,33 @@ class XmlMatrix(object):
                         states.append(item_value)
                 self.matrix[taxonId].append({name:states})
         return self.matrix
+    
+class CsvMatrix(object):
+
+    def __init__(self, filename, delim='\t'):
+        self.reader = csv.DictReader(open(filename), delimiter=delim)
+        self.matrix = None
+        
+    def getMatrix(self):
+        if self.matrix is not None:
+            return self.matrix
+        self.matrix = {}
+        tid = 0
+        for row in self.reader:
+            self.matrix[tid] = []
+            for key in row:
+                if row[key].find('|') != -1:
+                    states = [row[key].split('|')[0]]
+                else:
+                    states = [row[key]]
+                self.matrix[tid].append({key : states})
+            tid += 1
+        return self.matrix
+        
         
 if __name__ == "__main__":
-    xm = XmlMatrix('../../data/mapQuery.xml')
-    matrix = xm.getMatrix()
+    c = CsvMatrix('../../data/achillea.txt')
+    matrix = c.getMatrix()
     for k, v in matrix.iteritems():
         print k, v
     

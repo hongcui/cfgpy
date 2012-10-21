@@ -48,6 +48,9 @@ class DatasetXml(models.Model):
                     species_names.append(charState['species'][0])
                     #only one of these, so stop looking in the current list
                     break
+                elif 'Name' in charState:
+                    species_names.append(charState['Name'][0])
+                    break
         return species_names
     
     def get_species_keyed_dictionary(self, includedSpecies=None):
@@ -64,6 +67,8 @@ class DatasetXml(models.Model):
             for charState in charStateList:
                 if 'species' in charState:
                     sp_name = charState['species'][0]
+                elif 'Name' in charState:
+                    sp_name = charState['Name'][0]
                 else:
                     name = charState.keys()[0]  #get name of this key
                     value = charState[name][0]  #original matrix has list of values, so get out first element

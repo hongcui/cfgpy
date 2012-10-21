@@ -63,32 +63,34 @@ class Entropy(object):
         
     def conditional_entropy(self, c):
         '''
-        Returns the conditional entropy of character c.  Each character attains
-        a boolean value.
+        Returns the conditional entropy of character c.
         '''
-        true = []
-        false = []
+        states = {}
         for sp in self.matrix:
             try:
-                if self.matrix[sp][c]:
-                    true.append(sp)
+                state = str(self.matrix[sp][c])
+                if state in states:
+                    states[state].append(sp)
                 else:
-                    false.append(sp)
+                    states[state] = [sp]
             except KeyError:
                 print 'No character for this species:', c, sp
-        p_true = float(len(true)) / float(len(self.matrix))
-        p_false = float(len(false)) / float(len(self.matrix))
+        s_keys = states.keys()
+        p_states = [float(len(states[s])) / float(len(self.matrix)) for s in s_keys]
         
-        if p_true == 0:
-            h2 = self.character_entropy(false, c)
-            return p_false * h2
-        elif p_false == 0:
-            h1 = self.character_entropy(true, c)
-            return p_true * h1
+#        if p_true == 0:
+#            h2 = self.character_entropy(false, c)
+#            return p_false * h2
+#        elif p_false == 0:
+#            h1 = self.character_entropy(true, c)
+#            return p_true * h1
         
-        h1 = self.character_entropy(true, c)
-        h2 = self.character_entropy(false, c)
-        return p_true * h1 + p_false * h2
+        return_sum = 0
+        for i in xrange(len(s_keys)):
+            h = self.character_entropy(states[s_keys[i]], c)
+            p = p_states[i]
+            return_sum += p * h
+        return return_sum
         
     
     def information_gain(self):
@@ -142,13 +144,13 @@ class Entropy(object):
         Splits the matrix into two submatrices: those that attain value True
         for the given character, and those that attain False.
         '''
-        true = {}
-        false = {}
+        submatrices = {}
         for sp, d in self.matrix.iteritems():
-            if d[char]:
-                true[sp] = d
+            state = str(d[char])
+            if state in submatrices:
+                submatrices[state][sp] = d
             else:
-                false[sp] = d
-        return true, false
+                submatrices[state] = {sp : d} 
+        return submatrices
                     
     
